@@ -1,10 +1,18 @@
-from flask import Blueprint
+from flask import (
+    Blueprint, render_template, request
+)
 
 bp = Blueprint('wikis', __name__, url_prefix='/wikis/')
 
 @bp.route('')
 def index():
-    return "This is the wikis stub"
+    return render_template("upload.html");
+
+@bp.route('uploadcsv', methods=(["POST"]))
+def upload():
+    print(request.files["csv"])
+    print(request.files["config"])
+    return "Uploaded"
 
 # This section for standalone development/testing only
 if __name__ == "wikis":
