@@ -6,7 +6,7 @@ from io import StringIO
 
 import csv2wiki
 
-bp = Blueprint('wikis', __name__, url_prefix='/wikis/')
+bp = Blueprint('wikis', __name__, url_prefix='/wikis/', template_folder='templates')
 
 @bp.route('')
 def index():
@@ -20,6 +20,9 @@ def upload():
     wiki_sess = csv2wiki.WikiSession(config, csv_in, False, output)
     wiki_sess.make_pages(None, "size")
     return "<pre>" + output.getvalue() + "</pre>"
+
+def main_partial():
+    return "main_partial.html"
 
 # This section for standalone development/testing only
 if __name__ == "wikis":
