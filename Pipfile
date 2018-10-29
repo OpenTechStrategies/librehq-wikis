@@ -8,6 +8,7 @@ name = "pypi"
 [packages]
 
 flask = "*"
+"csv2wiki" = {git = "https://github.com/OpenTechStrategies/csv2wiki", editable = true, ref = "module-ize"}
 
 
 [dev-packages]
