@@ -20,10 +20,11 @@
     loop:
       - apache2
       - curl
-      - mariadb-server
       - php
       - php-apcu
       - php-intl
+      - postgresql
+      - python-psycopg2
 
   - name: Create "wiki" user
     user:
@@ -39,3 +40,37 @@
       owner: wiki
       group: wiki
       checksum: sha256:ce5ad8a07c8ef6832448629d8bb56a19b2f73632ddde29b5af2c08192943a48f
+
+  - name: Extract MediaWiki tarball
+    unarchive:
+      src: /home/wiki/mediawiki-1.31.1.tar.gz
+      dest: /home/wiki
+      remote_src: yes
+      owner: wiki
+      group: wiki
+
+  - name: Symlink to webserver directory
+    file:
+      state: link
+      owner: www-data
+      group: www-data
+      src: /home/wiki/mediawiki-1.31.1
+      path: /var/www/mediawiki
+
+  - name: Create database user
+    become: true
+    become_user: postgres
+    postgresql_user:
+      name: wikiuser
+      state: present
+      password: __FILL_FROM_VAULT__
+      encrypted: yes
+
+  - name: Create database
+    become: true
+    become_user: postgres
+    postgresql_db:
+      name: wikidb
+      owner: wikiuser
+
+#  - name: Run install script
