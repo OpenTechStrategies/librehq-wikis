@@ -25,3 +25,17 @@
       - php-apcu
       - php-intl
 
+  - name: Create "wiki" user
+    user:
+      name: wiki
+      shell: /bin/bash
+      create_home: yes
+      state: present
+
+  - name: Download MediaWiki
+    get_url:
+      url: https://releases.wikimedia.org/mediawiki/1.31/mediawiki-1.31.1.tar.gz
+      dest: /home/wiki/mediawiki-1.31.1.tar.gz
+      owner: wiki
+      group: wiki
+      checksum: sha256:ce5ad8a07c8ef6832448629d8bb56a19b2f73632ddde29b5af2c08192943a48f
