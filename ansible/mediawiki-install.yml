@@ -79,6 +79,14 @@
     shell: phpenmod mbstring xml
 
   - name: Run install script
+    # See https://www.mediawiki.org/wiki/Manual:Install.php#Script_specific_parameters
     become: true
     become_user: wiki
-    command: php /home/wiki/mediawiki-1.31.1/maintenance/install.php
+    shell: php /home/wiki/mediawiki-1.31.1/maintenance/install.php
+    args:
+      dbname: wikidb
+      dbuser: wikiuser
+      dbpass: "{{ __FILL_FROM_VAULT__ }}"
+      dbtype: postgres
+      pass: admin
+      admin: admin
