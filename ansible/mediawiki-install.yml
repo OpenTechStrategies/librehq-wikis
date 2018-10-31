@@ -23,6 +23,8 @@
       - php
       - php-apcu
       - php-intl
+      - php7.3-mbstring
+      - php7.3-xml
       - postgresql
       - python-psycopg2
 
@@ -63,7 +65,7 @@
     postgresql_user:
       name: wikiuser
       state: present
-      password: __FILL_FROM_VAULT__
+      password: "{{ __FILL_FROM_VAULT__ }}"
       encrypted: yes
 
   - name: Create database
@@ -73,4 +75,10 @@
       name: wikidb
       owner: wikiuser
 
-#  - name: Run install script
+  - name: Enable PHP modules
+    shell: phpenmod mbstring xml
+
+  - name: Run install script
+    become: true
+    become_user: wiki
+    command: php /home/wiki/mediawiki-1.31.1/maintenance/install.php
