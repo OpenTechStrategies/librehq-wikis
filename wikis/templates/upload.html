@@ -1,4 +1,13 @@
+<h1>Create Wiki</h1>
+<form action="createwiki" method="post">
+  Name: <input type="text" name="name">
+  <input type="submit" value="Create Wiki">
+</form>
+<hr>
+<h1>Create Wiki via CSV</h1>
 <form action="uploadcsv" method="post" enctype="multipart/form-data">
+  Name: <input type="text" name="name">
+  <br>
   CSV: <input type="file" name="csv">
   <br>
   Config: <input type="file" name="config">
