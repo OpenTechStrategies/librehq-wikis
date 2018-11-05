@@ -26,7 +26,8 @@ example.com | SUCCESS => {
 }
 ```
 
-To run the playbook, do the following:
+To run the simplest version of the playbook, with no secrets, do the
+following:
 
     $ cd /path/to/this/repository/ansible/
     $ ansible-playbook mediawiki-install.yml
@@ -51,3 +52,34 @@ PLAY RECAP *********************************************************************
 example.com : ok=2    changed=1    unreachable=0    failed=0   
 ```
 
+## Encrypt secrets
+
+However, you'll most likely need to encrypt some secrets.  For example,
+in this playbook we encrypt the database password.
+
+A best practice is to create an Ansible Vault file with all sensitive
+variables and use `ansible-vault encrypt` to encrypt the file.  You can
+use a plaintext (not encrypted) file to redirect to the vault file for
+easier maintenance, as described in [the
+documentation](https://docs.ansible.com/ansible/2.5/user_guide/playbooks_best_practices.html#best-practices-for-variables-and-vaults).
+For this playbook, copy the example vault file and fill it in with your
+own secrets, then vault encrypt it.
+
+```
+    $ cp ansible/mediawiki_vars/vault.yml.tmpl ansible/mediawiki_vars/vault.yml
+    # Edit vault file and fill in your passwords
+    # Encrypt the file
+    $ ansible-vault encrypt mediawiki_vars/vault.yml
+    New Vault password:
+    Confirm New Vault password:
+
+    Encryption successful
+```
+
+Then, when you run the playbook, you'll use the `--ask-vault-pass` flag.
+
+    $ ansible-playbook mediawiki-install.yml --ask-vault-pass
+    Vault password:
+
+If you want to run the command in a script, you can also pass the vault
+password in a file.

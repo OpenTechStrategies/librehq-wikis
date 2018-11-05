@@ -12,6 +12,7 @@
 - hosts: mediawiki
   remote_user: root
   tasks:
+
   - name: install prerequisites
     # See https://www.mediawiki.org/wiki/Manual:Installation_requirements
     apt:
@@ -27,6 +28,12 @@
       - php7.3-xml
       - postgresql
       - python-psycopg2
+
+  - name: Include variables for install script
+    include_vars:
+      dir: mediawiki_vars
+      ignore_files: [vault.yml.tmpl]
+      extensions: [yml]
 
   - name: Create "wiki" user
     user:
@@ -65,7 +72,7 @@
     postgresql_user:
       name: wikiuser
       state: present
-      password: "{{ __FILL_FROM_VAULT__ }}"
+      password: "{{ wikiuser_db_pass }}"
       encrypted: yes
 
   - name: Create database
@@ -86,7 +93,7 @@
     args:
       dbname: wikidb
       dbuser: wikiuser
-      dbpass: "{{ __FILL_FROM_VAULT__ }}"
+      dbpass: "{{ wikiuser_db_pass }}"
       dbtype: postgres
       pass: admin
       admin: admin
