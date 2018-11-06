@@ -4,8 +4,6 @@ from flask import (
 
 bp = Blueprint('wikis', __name__, url_prefix='/wikis/', template_folder='templates')
 
-from wikis import create
-
 @bp.route('')
 def index():
     return render_template("upload.html");
@@ -28,3 +26,6 @@ if __name__ == "__main__" or __name__ == "wikis":
     app.register_blueprint(bp)
     if __name__ == "__main__":
         app.run(host='0.0.0.0')
+
+from wikis import create
+

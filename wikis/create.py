@@ -5,7 +5,7 @@ from flask import (
 
 import csv2wiki, subprocess
 
-from wikis import bp
+from wikis import bp, db
 
 @bp.route('createwiki', methods=(["POST"]))
 def upload_test():
@@ -41,3 +41,8 @@ def upload():
             request.form["name"] +
             ".otswiki.net'>New wiki: " +
             request.form["name"] + "</a>")
+
+class Wiki(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(128))
+    wikiname = db.Column(db.String(128))
