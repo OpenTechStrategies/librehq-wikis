@@ -23,6 +23,10 @@ if __name__ == "__main__" or __name__ == "wikis":
     db = SQLAlchemy(app)
     migrate = Migrate(app, db)
 
+    @app.route('/')
+    def standalone_index():
+        return render_template("standalone_index.html")
+
     app.register_blueprint(bp)
     if __name__ == "__main__":
         app.run(host='0.0.0.0')
