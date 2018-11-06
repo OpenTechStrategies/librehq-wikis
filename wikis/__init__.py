@@ -17,7 +17,8 @@ def signin_required(view):
 @bp.route('')
 @signin_required
 def index():
-    return render_template("upload.html")
+    wikis = create.Wiki.query.filter_by(username=session.get("account_username")).all()
+    return render_template("dashboard.html", wikis=wikis)
 
 def main_partial():
     return "main_partial.html"

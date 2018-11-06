@@ -1,3 +1,9 @@
+<h1>Wikis</h1>
+{% for wiki in wikis %}
+  {{ wiki.wikiname }}
+  <br>
+{% endfor %}
+<hr>
 <h1>Create Wiki</h1>
 <form action="createwiki" method="post">
   Name: <input type="text" name="name">
