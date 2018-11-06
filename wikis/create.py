@@ -9,7 +9,7 @@ from wikis import bp, db, signin_required
 
 @bp.route('createwiki', methods=(["POST"]))
 @signin_required
-def upload_test():
+def create_plain():
     # Let this error if the script isn't here, since we're in prototype mode
     # TODO: Replace by ansible call
     subprocess.call(['addWiki.sh', request.form["name"]]);
@@ -21,7 +21,7 @@ def upload_test():
 
 @bp.route('uploadcsv', methods=(["POST"]))
 @signin_required
-def upload():
+def create_with_csv():
     # Let this error if the script isn't here, since we're in prototype mode
     # TODO: Replace by ansible call
     subprocess.call(['addWiki.sh', request.form["name"]]);
