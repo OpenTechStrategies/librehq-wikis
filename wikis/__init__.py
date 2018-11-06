@@ -10,13 +10,14 @@ def signin_required(view):
             return redirect("/")
         else:
             return view(**kwargs)
+    wrapped_view.__name__ = view.__name__
 
     return wrapped_view
 
 @bp.route('')
 @signin_required
 def index():
-    return render_template("upload.html");
+    return render_template("upload.html")
 
 def main_partial():
     return "main_partial.html"
@@ -52,9 +53,10 @@ if __name__ == "__main__" or __name__ == "wikis":
         session.clear()
         return(redirect("/"))
 
-    app.register_blueprint(bp)
     if __name__ == "__main__":
         app.run(host='0.0.0.0')
 
 from wikis import create
+
+app.register_blueprint(bp)
 

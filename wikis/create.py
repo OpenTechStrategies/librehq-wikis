@@ -1,18 +1,26 @@
 from io import StringIO
 from flask import (
-    request
+    request, session
 )
 
 import csv2wiki, subprocess
 
 from wikis import bp, db, signin_required
 
+def create_wiki():
+    new_wiki = Wiki(username=session.get("account_username"),
+                    wikiname=request.form["name"])
+    db.session.add(new_wiki)
+    db.session.commit()
+
+    # Let this error if the script isn't here, since we're in prototype mode
+    # TODO: Replace by ansible call
+    subprocess.call(['addWiki.sh', request.form["name"]])
+
 @bp.route('createwiki', methods=(["POST"]))
 @signin_required
 def create_plain():
-    # Let this error if the script isn't here, since we're in prototype mode
-    # TODO: Replace by ansible call
-    subprocess.call(['addWiki.sh', request.form["name"]]);
+    create_wiki()
 
     return ("<a href='http://" +
         request.form["name"] +
@@ -22,9 +30,7 @@ def create_plain():
 @bp.route('uploadcsv', methods=(["POST"]))
 @signin_required
 def create_with_csv():
-    # Let this error if the script isn't here, since we're in prototype mode
-    # TODO: Replace by ansible call
-    subprocess.call(['addWiki.sh', request.form["name"]]);
+    create_wiki()
 
     config = csv2wiki.parse_config_string(request.files["config"].read().decode("utf-8"))
 
