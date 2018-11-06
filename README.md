@@ -24,6 +24,21 @@ full list)
 $ pipenv install
 ```
 
+## Configuring the database
+
+See librehq-core for more information, but follow the commands to set up the database
+for the standalone wikis application:
+
+```ShellSession
+$ sudo -u postgres createuser librehq  # May have already been done by librehq-core
+$ sudo -u postgres createdb --owner=librehq librehq_wikis
+```
+
+Run flask-migrate migrations for this project
+```ShellSession
+FLASK_APP=wikis pipenv run flask db upgrade
+```
+
 ## Booting the application
 
 Start the application by running flask from the project directory:

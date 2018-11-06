@@ -16,7 +16,15 @@ def main_partial():
 # This section for standalone development/testing only
 if __name__ == "__main__" or __name__ == "wikis":
     from flask import Flask
+    from flask_sqlalchemy import SQLAlchemy
+    from flask_migrate import Migrate
+
     app = Flask(__name__)
+
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://librehq@localhost/librehq_wikis';
+    db = SQLAlchemy(app)
+    migrate = Migrate(app, db)
+
     app.register_blueprint(bp)
     if __name__ == "__main__":
         app.run(host='0.0.0.0')
