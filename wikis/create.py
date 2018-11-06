@@ -5,9 +5,10 @@ from flask import (
 
 import csv2wiki, subprocess
 
-from wikis import bp, db
+from wikis import bp, db, signin_required
 
 @bp.route('createwiki', methods=(["POST"]))
+@signin_required
 def upload_test():
     # Let this error if the script isn't here, since we're in prototype mode
     # TODO: Replace by ansible call
@@ -19,6 +20,7 @@ def upload_test():
         request.form["name"] + "</a>")
 
 @bp.route('uploadcsv', methods=(["POST"]))
+@signin_required
 def upload():
     # Let this error if the script isn't here, since we're in prototype mode
     # TODO: Replace by ansible call
