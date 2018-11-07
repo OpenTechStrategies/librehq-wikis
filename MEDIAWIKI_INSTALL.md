@@ -193,3 +193,21 @@ php 1.28.2/maintenance/install.php \
   "Wiki $WIKINAME" \
   "test"
 ```
+
+# Script to rename a wiki
+
+This is a bare bones way to change the name of the wiki according to MediaWiki.
+While the wiki name is taken as a parameter in the addWiki.sh, it seems to not
+be used in the mediawiki database anywhere, so that doesn't need updating.
+
+```bash
+#!/bin/bash
+
+[ -z "$2" ] && echo "Need at least 2 arguments, the old wiki name, and new wiki name" && exit
+
+WIKINAME_OLD=$1
+WIKINAME_NEW=$2
+
+sed -i -e "s/^$WIKINAME_OLD: 1.28.2$/$WIKINAME_NEW: 1.28.2/" ~/ots/mediawiki/etc/mediawiki/versions.yml
+mv ~/ots/mediawiki/etc/mediawiki/conf/$WIKINAME_OLD.yml ~/ots/mediawiki/etc/mediawiki/conf/$WIKINAME_NEW.yml
+```

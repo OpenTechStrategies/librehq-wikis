@@ -1,6 +1,11 @@
 <h1>Wikis</h1>
 {% for wiki in wikis %}
-  {{ wiki.wikiname }}
+  <h2>{{ wiki.wikiname }}</h2>
+  <form method="post" action="renamewiki">
+    <input type="hidden" name="wiki_id" value="{{ wiki.id }}">
+    Rename to <input name="new_wiki_name">
+    <input type="submit" value="Rename">
+  </form>
   <br>
 {% endfor %}
 <hr>

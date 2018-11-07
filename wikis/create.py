@@ -1,6 +1,6 @@
 from io import StringIO
 from flask import (
-    request, session
+    redirect, request, session
 )
 
 import csv2wiki, subprocess
@@ -28,6 +28,22 @@ def create_plain():
         request.form["name"] +
         ".otswiki.net'>New wiki: " +
         request.form["name"] + "</a>")
+
+@bp.route('renamewiki', methods=(["POST"]))
+@signin_required
+def rename_wiki():
+    wiki = Wiki.query.get(request.form["wiki_id"])
+    old_wiki_name = wiki.wikiname
+    new_wiki_name = request.form["new_wiki_name"]
+
+    wiki.wikiname = new_wiki_name
+    db.session.add(wiki)
+    db.session.commit()
+
+    # TODO: Replace by ansible call
+    subprocess.call(['renameWiki.sh', old_wiki_name, new_wiki_name])
+
+    return redirect("/wikis/")
 
 @bp.route('uploadcsv', methods=(["POST"]))
 @signin_required
