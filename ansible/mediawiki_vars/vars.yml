@@ -1,1 +1,2 @@
 wikiuser_db_pass: "{{ wikiuser_db_pass_vault }}"
+wiki_admin_pass: "{{ wiki_admin_pass_vault }}"

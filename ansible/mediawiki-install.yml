@@ -89,11 +89,4 @@
     # See https://www.mediawiki.org/wiki/Manual:Install.php#Script_specific_parameters
     become: true
     become_user: wiki
-    shell: php /home/wiki/mediawiki-1.31.1/maintenance/install.php
-    args:
-      dbname: wikidb
-      dbuser: wikiuser
-      dbpass: "{{ wikiuser_db_pass }}"
-      dbtype: postgres
-      pass: admin
-      admin: admin
+    shell: php /home/wiki/mediawiki-1.31.1/maintenance/install.php --dbname wikidb --dbuser wikiuser --dbpass "{{ wikiuser_db_pass }}" --dbtype postgres --pass "{{ wiki_admin_pass }}" newwiki admin
