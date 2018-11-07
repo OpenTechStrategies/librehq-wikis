@@ -13,9 +13,11 @@ def create_wiki():
     db.session.add(new_wiki)
     db.session.commit()
 
+    wiki_db_name = "librehq_wikis_" + str(new_wiki.id)
+
     # Let this error if the script isn't here, since we're in prototype mode
     # TODO: Replace by ansible call
-    subprocess.call(['addWiki.sh', request.form["name"]])
+    subprocess.call(['addWiki.sh', request.form["name"], wiki_db_name])
 
 @bp.route('createwiki', methods=(["POST"]))
 @signin_required

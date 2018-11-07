@@ -152,14 +152,20 @@ If you have wildcard domain resolution, the farm set up, and apache routing
 finished, you can add a new wiki via the following script.  It does minimal
 error checking, so you need to make sure you name the wiki a valid hostname.
 
+The wiki db needs to be passed in, and ideally unique from the WIKINAME, because
+renaming databases is challenging, so we want to be able to rename the wiki while
+keeping the database name the same.  We achieve this by linking the db name
+with the id in the librehq_wikis database maintained by librehq.
+
 ```bash
 #!/bin/bash
 
-[ -z "$1" ] && echo "Need at least 1 argument, the wiki name" && exit
+[ -z "$2" ] && echo "Need at least 2 arguments, the wiki name, and a db id" && exit
 
 WIKINAME=$1
+WIKIDB=$2
 
-echo "CREATE DATABASE mw_$WIKINAME" | mysql -uroot
+echo "CREATE DATABASE $WIKIDB" | mysql -uroot
 
 if ! grep "^$WIKINAME: 1.28.2$" ~/ots/mediawiki/etc/mediawiki/versions.yml &> /dev/null ; then
     echo "$WIKINAME: 1.28.2" >> ~/ots/mediawiki/etc/mediawiki/versions.yml
@@ -168,7 +174,7 @@ fi
 cat > ~/ots/mediawiki/etc/mediawiki/conf/$WIKINAME.yml << EOF
 wgDBtype: 'mysql'
 wgDBserver: 'localhost'
-wgDBname: 'mw_$WIKINAME'
+wgDBname: '$WIKIDB'
 wgDBuser: 'root'
 wgScriptPath: ''
 wgUseSkinVector: true
@@ -181,7 +187,7 @@ php 1.28.2/maintenance/install.php \
   --dbtype=mysql \
   --dbserver=localhost \
   --dbuser=root \
-  --dbname=mw_$WIKINAME \
+  --dbname=$WIKIDB \
   --lang=en \
   --pass=mdpwiki8chars \
   "Wiki $WIKINAME" \
