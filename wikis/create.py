@@ -17,7 +17,14 @@ def create_wiki():
 
     # Let this error if the script isn't here, since we're in prototype mode
     # TODO: Replace by ansible call
-    subprocess.call(['addWiki.sh', request.form["name"], wiki_db_name])
+    session.get("account_username")
+    subprocess.call([
+        'addWiki.sh',
+        request.form["name"],
+        wiki_db_name,
+        session.get("account_username"),
+        session.get("account_password")
+    ])
 
 @bp.route('createwiki', methods=(["POST"]))
 @signin_required
@@ -69,8 +76,8 @@ def create_with_csv():
     # Override config options with our known parameters
     config["wiki_url"] = "http://" + request.form["name"] + ".otswiki.net/"
     # These are set in the addWiki.sh script, and should come from user federation later
-    config["username"] = "test"
-    config["password"] = "mdpwiki8chars"
+    config["username"] = session.get("account_username")
+    config["password"] = session.get("account_password")
 
     csv_in = csv2wiki.CSVInput(StringIO(request.files["csv"].read().decode('utf-8')), config)
     output = StringIO()

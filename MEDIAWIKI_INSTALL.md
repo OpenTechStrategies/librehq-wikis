@@ -160,10 +160,12 @@ with the id in the librehq_wikis database maintained by librehq.
 ```bash
 #!/bin/bash
 
-[ -z "$2" ] && echo "Need at least 2 arguments, the wiki name, and a db id" && exit
+[ -z "$4" ] && echo "Need at least 2 arguments, the wiki name, and a db id" && exit
 
 WIKINAME=$1
 WIKIDB=$2
+USERNAME=$3
+PASSWORD=$4
 
 echo "CREATE DATABASE $WIKIDB" | mysql -uroot
 
@@ -189,9 +191,9 @@ php 1.28.2/maintenance/install.php \
   --dbuser=root \
   --dbname=$WIKIDB \
   --lang=en \
-  --pass=mdpwiki8chars \
+  --pass=$PASSWORD \
   "Wiki $WIKINAME" \
-  "test"
+  "$USERNAME"
 ```
 
 # Script to rename a wiki
