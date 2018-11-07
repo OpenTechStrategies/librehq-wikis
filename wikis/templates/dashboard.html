@@ -6,6 +6,11 @@
     Rename to <input name="new_wiki_name">
     <input type="submit" value="Rename">
   </form>
+  <form method="post" action="deletewiki">
+    <input type="hidden" name="wiki_id" value="{{ wiki.id }}">
+    <!-- TODO: replace with non inline onclick code -->
+    <input type="submit" value="Delete!" onclick='return confirm("Confirm Wiki Deletion");'>
+  </form>
   <br>
 {% endfor %}
 <hr>

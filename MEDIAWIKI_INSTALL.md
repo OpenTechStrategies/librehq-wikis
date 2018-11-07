@@ -211,3 +211,22 @@ WIKINAME_NEW=$2
 sed -i -e "s/^$WIKINAME_OLD: 1.28.2$/$WIKINAME_NEW: 1.28.2/" ~/ots/mediawiki/etc/mediawiki/versions.yml
 mv ~/ots/mediawiki/etc/mediawiki/conf/$WIKINAME_OLD.yml ~/ots/mediawiki/etc/mediawiki/conf/$WIKINAME_NEW.yml
 ```
+
+# Script to delete a wiki
+
+This is another bare bones mediawiki editing.  Just blow away everything that
+was set up in addWiki.sh
+
+```bash
+#!/bin/bash
+
+[ -z "$2" ] && echo "Need at least 2 arguments, the wiki name, and a db id" && exit
+
+WIKINAME=$1
+WIKIDB=$2
+
+echo "DROP DATABASE $WIKIDB" | mysql -uroot
+
+sed -i -e "/^$WIKINAME: 1.28.2$/d" ~/ots/mediawiki/etc/mediawiki/versions.yml
+rm ~/ots/mediawiki/etc/mediawiki/conf/$WIKINAME.yml
+```

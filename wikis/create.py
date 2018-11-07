@@ -29,6 +29,20 @@ def create_plain():
         ".otswiki.net'>New wiki: " +
         request.form["name"] + "</a>")
 
+@bp.route('deletewiki', methods=(["POST"]))
+@signin_required
+def delete_wiki():
+    wiki = Wiki.query.get(request.form["wiki_id"])
+    wiki_db_name = "librehq_wikis_" + str(wiki.id)
+
+    db.session.delete(wiki)
+    db.session.commit()
+
+    # TODO: Replace by ansible call
+    subprocess.call(['deleteWiki.sh', wiki.wikiname, wiki_db_name])
+
+    return redirect("/wikis/")
+
 @bp.route('renamewiki', methods=(["POST"]))
 @signin_required
 def rename_wiki():
