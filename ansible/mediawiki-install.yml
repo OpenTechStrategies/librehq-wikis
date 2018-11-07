@@ -26,8 +26,9 @@
       - php-apcu
       - php-intl
       - php7.3-mbstring
-      - php7.3-xml
       - php7.3-pgsql
+      - php7.2-xml
+      - php7.3-xml
       - postgresql
       - python-psycopg2
 
@@ -85,10 +86,28 @@
       owner: wikiuser
 
   - name: Enable PHP modules
-    shell: phpenmod mbstring xml
+    shell: phpenmod {{ item }}
+    loop:
+      - mbstring
+      - xml
 
   - name: Run install script
     # See https://www.mediawiki.org/wiki/Manual:Install.php#Script_specific_parameters
     become: true
     become_user: wiki
     shell: php /home/wiki/mediawiki-1.31.1/maintenance/install.php --dbname wikidb --dbuser wikiuser --dbpass "{{ wikiuser_db_pass }}" --dbtype postgres --pass "{{ wiki_admin_pass }}" newwiki admin
+
+  - name: Send up MW config file
+    copy:
+      src: mwiki-default.conf
+      dest: /etc/apache2/sites-available
+      backup: yes
+
+  - name: Enable MW site
+    shell: a2ensite mwiki-default.conf
+
+  - name: Restart Apache
+    service:
+      name: apache2
+      state: restarted
+    

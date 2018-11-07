@@ -83,3 +83,14 @@ Then, when you run the playbook, you'll use the `--ask-vault-pass` flag.
 
 If you want to run the command in a script, you can also pass the vault
 password in a file.
+
+## Server configuration
+
+We include an `mwiki-default.conf.tmpl` in this directory.  You will need to copy that to your .conf file like so:
+
+    $ cp mwiki-default.conf.tmpl mwiki-default.conf
+    # Edit ServerName to be whatever you want to call your host
+
+If you know what changes you want to make to your Apache configuration
+(e.g. adding SSL), you can make those here.  You will at least need
+to fill in the Server Name.
