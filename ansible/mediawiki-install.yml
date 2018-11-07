@@ -17,6 +17,7 @@
     # See https://www.mediawiki.org/wiki/Manual:Installation_requirements
     apt:
       name: "{{ item }}"
+      update_cache: yes
       state: present
     loop:
       - apache2
@@ -26,6 +27,7 @@
       - php-intl
       - php7.3-mbstring
       - php7.3-xml
+      - php7.3-pgsql
       - postgresql
       - python-psycopg2
 
