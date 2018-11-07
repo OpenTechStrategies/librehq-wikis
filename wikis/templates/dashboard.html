@@ -12,6 +12,16 @@
     <!-- TODO: replace with non inline onclick code -->
     <input type="submit" value="Delete!" onclick='return confirm("Confirm Wiki Deletion");'>
   </form>
+  <h3>Upload csv to populate wiki</h3>
+  <form action="uploadcsv" method="post" enctype="multipart/form-data">
+    <input type="hidden" name="wiki_id" value="{{ wiki.id }}">
+    CSV: <input type="file" name="csv">
+    <br>
+    Config: <input type="file" name="config">
+    <br>
+    <input type="submit">
+  </form>
+  </h3>
   <br>
 {% endfor %}
 <hr>

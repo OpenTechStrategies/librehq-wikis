@@ -69,12 +69,17 @@ def rename_wiki():
 @bp.route('uploadcsv', methods=(["POST"]))
 @signin_required
 def create_with_csv():
-    create_wiki()
+    if "name" in request.form:
+        wikiname = request.form["name"]
+        create_wiki()
+    else:
+        wiki = Wiki.query.get(request.form["wiki_id"])
+        wikiname = wiki.wikiname
 
     config = csv2wiki.parse_config_string(request.files["config"].read().decode("utf-8"))
 
     # Override config options with our known parameters
-    config["wiki_url"] = "http://" + request.form["name"] + ".otswiki.net/"
+    config["wiki_url"] = "http://" + wikiname + ".otswiki.net/"
     # These are set in the addWiki.sh script, and should come from user federation later
     config["username"] = session.get("account_username")
     config["password"] = session.get("account_password")
@@ -85,9 +90,9 @@ def create_with_csv():
     wiki_sess.make_pages(None, "size")
     return ("<pre>" + output.getvalue() + "</pre>" +
             "<a href='http://" +
-            request.form["name"] +
+            wikiname +
             ".otswiki.net'>New wiki: " +
-            request.form["name"] + "</a>")
+            wikiname + "</a>")
 
 class Wiki(db.Model):
     id = db.Column(db.Integer, primary_key=True)
