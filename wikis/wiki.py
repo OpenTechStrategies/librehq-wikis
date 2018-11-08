@@ -32,7 +32,7 @@ def create_wiki():
 @signin_required
 def dashboard():
     wikis = Wiki.query.filter_by(username=session.get("account_username")).all()
-    return render_template("dashboard.html", wikis=wikis)
+    return render_template("wikis/dashboard.html", wikis=wikis)
 
 @bp.route('createwiki', methods=(["POST"]))
 @signin_required
@@ -103,6 +103,7 @@ def create_with_csv():
             wikiname + "</a>")
 
 class Wiki(db.Model):
+    __bind_key__ = "wikis"
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(128))
     wikiname = db.Column(db.String(128))

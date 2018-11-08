@@ -2,6 +2,10 @@ from flask import (
     redirect, render_template, request, session
 )
 
+import os
+
+db = None
+
 def signin_required(view):
     def wrapped_view(**kwargs):
         if session.get("account_username") is None:
@@ -13,10 +17,25 @@ def signin_required(view):
     return wrapped_view
 
 def main_partial():
-    return "main_partial.html"
+    return "wikis/main_partial.html"
+
+def initialize_module(app, app_db):
+    global db
+    db = app_db
+
+    from wikis import wiki
+    app.register_blueprint(wiki.bp)
 
 # This section for standalone development/testing only
-if __name__ == "__main__" or __name__ == "wikis":
+# We switch on the environment variable of the FLASK_APP because
+# that's the most reliable piece of information (that I could find),
+# but this has the downside that you have to boot the standarlone
+# with the command:
+#
+#    $ FLASK_APP=wikis flask run
+#
+# or as a standalone script
+if __name__ == "__main__" or os.environ["FLASK_APP"] == "wikis":
     from flask import Flask
     from flask_sqlalchemy import SQLAlchemy
     from flask_migrate import Migrate
@@ -25,8 +44,8 @@ if __name__ == "__main__" or __name__ == "wikis":
 
     app.config["SECRET_KEY"] = "dev"
     app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://librehq@localhost/librehq_wikis';
-    db = SQLAlchemy(app)
-    migrate = Migrate(app, db)
+    app_db = SQLAlchemy(app)
+    migrate = Migrate(app, app_db)
 
     @app.route('/')
     def standalone_index():
@@ -49,6 +68,4 @@ if __name__ == "__main__" or __name__ == "wikis":
     if __name__ == "__main__":
         app.run(host='0.0.0.0')
 
-from wikis import wiki
-
-app.register_blueprint(wiki.bp)
+    initialize_module(app, app_db)
