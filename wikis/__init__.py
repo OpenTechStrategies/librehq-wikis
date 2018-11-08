@@ -42,8 +42,12 @@ if __name__ == "__main__" or os.environ["FLASK_APP"] == "wikis":
 
     app = Flask(__name__)
 
+    try:
+        app.config.from_object('config')
+    except:
+        raise RuntimeError("No config.py found")
+
     app.config["SECRET_KEY"] = "dev"
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://librehq@localhost/librehq_wikis';
     app_db = SQLAlchemy(app)
     migrate = Migrate(app, app_db)
 

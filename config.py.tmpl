@@ -1,0 +1,12 @@
+# Uncomment line and fill in.  The default is the user librehq with no password
+# running on localhost.
+
+# We need a default database uri for migrations
+# SQLALCHEMY_DATABASE_URI='postgresql://<user>:<pass>@<host>/librehq_wikis'
+# SQLALCHEMY_BINDS = {
+#     "wikis": 'postgresql://<wikis_user>:<wikis_pass>@<wikis_host>/librehq_wikis'
+# }
+SQLALCHEMY_DATABASE_URI='postgresql://librehq@localhost/librehq_wikis'
+SQLALCHEMY_BINDS = {
+    "wikis": 'postgresql://librehq@localhost/librehq_wikis'
+}
