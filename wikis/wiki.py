@@ -1,11 +1,13 @@
 from io import StringIO
 from flask import (
-    redirect, request, session
+    Blueprint, redirect, render_template, request, session, url_for
 )
 
 import csv2wiki, subprocess
 
-from wikis import bp, db, signin_required
+from wikis import db, signin_required
+
+bp = Blueprint('wikis', __name__, url_prefix='/wikis/', template_folder='templates')
 
 def create_wiki():
     new_wiki = Wiki(username=session.get("account_username"),
@@ -25,6 +27,12 @@ def create_wiki():
         session.get("account_username"),
         session.get("account_password")
     ])
+
+@bp.route('')
+@signin_required
+def dashboard():
+    wikis = Wiki.query.filter_by(username=session.get("account_username")).all()
+    return render_template("dashboard.html", wikis=wikis)
 
 @bp.route('createwiki', methods=(["POST"]))
 @signin_required
@@ -48,7 +56,7 @@ def delete_wiki():
     # TODO: Replace by ansible call
     subprocess.call(['deleteWiki.sh', wiki.wikiname, wiki_db_name])
 
-    return redirect("/wikis/")
+    return redirect(url_for(".dashboard"))
 
 @bp.route('renamewiki', methods=(["POST"]))
 @signin_required
@@ -64,7 +72,7 @@ def rename_wiki():
     # TODO: Replace by ansible call
     subprocess.call(['renameWiki.sh', old_wiki_name, new_wiki_name])
 
-    return redirect("/wikis/")
+    return redirect(url_for(".dashboard"))
 
 @bp.route('uploadcsv', methods=(["POST"]))
 @signin_required

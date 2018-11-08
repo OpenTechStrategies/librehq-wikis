@@ -1,8 +1,6 @@
 from flask import (
-    Blueprint, redirect, render_template, request, session
+    redirect, render_template, request, session
 )
-
-bp = Blueprint('wikis', __name__, url_prefix='/wikis/', template_folder='templates')
 
 def signin_required(view):
     def wrapped_view(**kwargs):
@@ -13,12 +11,6 @@ def signin_required(view):
     wrapped_view.__name__ = view.__name__
 
     return wrapped_view
-
-@bp.route('')
-@signin_required
-def index():
-    wikis = create.Wiki.query.filter_by(username=session.get("account_username")).all()
-    return render_template("dashboard.html", wikis=wikis)
 
 def main_partial():
     return "main_partial.html"
@@ -57,7 +49,6 @@ if __name__ == "__main__" or __name__ == "wikis":
     if __name__ == "__main__":
         app.run(host='0.0.0.0')
 
-from wikis import create
+from wikis import wiki
 
-app.register_blueprint(bp)
-
+app.register_blueprint(wiki.bp)
