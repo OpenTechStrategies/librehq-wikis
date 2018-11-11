@@ -69,4 +69,8 @@ This section intentionally left blank due to this step being core only
 
 ## Step 7 - ansible - core only
 
+## Step 8 - Simple Account maintenance
+
+1. Use `base.html` as template when not in standalone mode
+
 This section inentionally left blank due to this step being core only
