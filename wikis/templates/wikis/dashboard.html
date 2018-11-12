@@ -1,43 +1,46 @@
-<h1>Wikis</h1>
-{% for wiki in wikis %}
-  <h2>{{ wiki.wikiname }}</h2>
-  Visit: <a href='http://{{ wiki.wikiname }}.otswiki.net'>{{ wiki.wikiname }}</a>
-  <form method="post" action="renamewiki">
-    <input type="hidden" name="wiki_id" value="{{ wiki.id }}">
-    Rename to <input name="new_wiki_name">
-    <input type="submit" value="Rename">
+{% extends "base.html" %}
+{% block content %}
+  <h1>Wikis</h1>
+  {% for wiki in wikis %}
+    <h2>{{ wiki.wikiname }}</h2>
+    Visit: <a href='http://{{ wiki.wikiname }}.otswiki.net'>{{ wiki.wikiname }}</a>
+    <form method="post" action="renamewiki">
+      <input type="hidden" name="wiki_id" value="{{ wiki.id }}">
+      Rename to <input name="new_wiki_name">
+      <input type="submit" value="Rename">
+    </form>
+    <form method="post" action="deletewiki">
+      <input type="hidden" name="wiki_id" value="{{ wiki.id }}">
+      <!-- TODO: replace with non inline onclick code -->
+      <input type="submit" value="Delete!" onclick='return confirm("Confirm Wiki Deletion");'>
+    </form>
+    <h3>Upload csv to populate wiki</h3>
+    <form action="uploadcsv" method="post" enctype="multipart/form-data">
+      <input type="hidden" name="wiki_id" value="{{ wiki.id }}">
+      CSV: <input type="file" name="csv">
+      <br>
+      Config: <input type="file" name="config">
+      <br>
+      <input type="submit">
+    </form>
+    </h3>
+    <br>
+  {% endfor %}
+  <hr>
+  <h1>Create Wiki</h1>
+  <form action="createwiki" method="post">
+    Name: <input type="text" name="name">
+    <input type="submit" value="Create Wiki">
   </form>
-  <form method="post" action="deletewiki">
-    <input type="hidden" name="wiki_id" value="{{ wiki.id }}">
-    <!-- TODO: replace with non inline onclick code -->
-    <input type="submit" value="Delete!" onclick='return confirm("Confirm Wiki Deletion");'>
-  </form>
-  <h3>Upload csv to populate wiki</h3>
+  <hr>
+  <h1>Create Wiki via CSV</h1>
   <form action="uploadcsv" method="post" enctype="multipart/form-data">
-    <input type="hidden" name="wiki_id" value="{{ wiki.id }}">
+    Name: <input type="text" name="name">
+    <br>
     CSV: <input type="file" name="csv">
     <br>
     Config: <input type="file" name="config">
     <br>
     <input type="submit">
   </form>
-  </h3>
-  <br>
-{% endfor %}
-<hr>
-<h1>Create Wiki</h1>
-<form action="createwiki" method="post">
-  Name: <input type="text" name="name">
-  <input type="submit" value="Create Wiki">
-</form>
-<hr>
-<h1>Create Wiki via CSV</h1>
-<form action="uploadcsv" method="post" enctype="multipart/form-data">
-  Name: <input type="text" name="name">
-  <br>
-  CSV: <input type="file" name="csv">
-  <br>
-  Config: <input type="file" name="config">
-  <br>
-  <input type="submit">
-</form>
+{% endblock %}
