@@ -1,5 +1,5 @@
 from flask import (
-    redirect, render_template, request, session
+    g, redirect, render_template, request, session
 )
 
 import os
@@ -50,6 +50,10 @@ if __name__ == "__main__" or os.environ["FLASK_APP"] == "wikis":
     app.config["SECRET_KEY"] = "dev"
     app_db = SQLAlchemy(app)
     migrate = Migrate(app, app_db)
+
+    @app.before_request
+    def set_standalone():
+        g.standalone = True
 
     @app.route('/')
     def standalone_index():

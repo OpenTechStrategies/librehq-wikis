@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% if not g.standalone %}{% extends "base.html" %}{% endif %}
 {% block content %}
   <h1>Wikis</h1>
   {% for wiki in wikis %}
