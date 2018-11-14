@@ -1,0 +1,10 @@
+myfarm:
+  server: '(?<wiki>[a-z0-9]+)\.__SERVER_NAME_HERE__'
+  variables:
+    - variable: 'wiki'
+  suffix: '$wiki'
+  wikiID: '$wiki'
+  versions: 'versions.yml'
+  config:
+    - file: 'conf/$wiki.yml'
+      key: '$wiki'

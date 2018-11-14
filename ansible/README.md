@@ -94,3 +94,11 @@ We include an `mwiki-default.conf.tmpl` in this directory.  You will need to cop
 If you know what changes you want to make to your Apache configuration
 (e.g. adding SSL), you can make those here.  You will at least need
 to fill in the Server Name.
+
+## Mediawiki Farm (i.e., multiple wikis)
+
+Our configuration for multiple wikis is currently closely based on
+[documentation in another
+branch](https://github.com/OpenTechStrategies/librehq-wikis/blob/mediawiki-updates/MEDIAWIKI_INSTALL.md)
+of this repository.  We expect these to be united on the master branch
+in the future.

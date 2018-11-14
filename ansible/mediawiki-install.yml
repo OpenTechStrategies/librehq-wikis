@@ -84,7 +84,7 @@
     become: true
     become_user: postgres
     postgresql_db:
-      name: wikidb
+      name: wikidb1
       owner: wikiuser
 
   - name: Enable PHP modules
@@ -151,4 +151,44 @@
     service:
       name: apache2
       state: restarted
-    
+
+  # Add MediawikiFarm configuration
+  - name: Download MediawikiFarm
+    git:
+      dest: /home/wiki/mediawikifarm
+      repo: https://gerrit.wikimedia.org/r/mediawiki/extensions/MediaWikiFarm
+
+  - name: Install MediawikiFarm
+    become: true
+    become_user: wiki
+    command: composer install --no-dev
+    args:
+      chdir: /home/wiki/mediawikifarm
+
+  - name: Edit ConfigDir
+    become: true
+    become_user: wiki
+    copy:
+      src: mediawikifarmdocs/MediaWikiFarmDirectories.php
+      dest: /home/wiki/mediawikifarm/config/MediaWikiFarmDirectories.php
+      force: yes
+
+  # Send up configuration yaml files
+  
+  # TBD: How can we pass the db password from the vault to these config
+  # files?
+  
+  - name: Add farm configuration files
+    become: true
+    become_user: wiki
+    copy:
+      src: "{{ item }}"
+      dest: /home/wiki/mediawiki-1.31.1
+      owner: wiki
+      group: wiki
+    with_items:
+      - mediawikifarmdocs/farms.yml  
+      - mediawikifarmdocs/versions.yml
+      - mediawikifarmdocs/test1.yml
+      - mediawikifarmdocs/test2.yml
+
