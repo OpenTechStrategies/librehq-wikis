@@ -1,46 +1,161 @@
 {% if not g.standalone %}{% extends "base.html" %}{% endif %}
 {% block content %}
-  <h1>Wikis</h1>
-  {% for wiki in wikis %}
-    <h2>{{ wiki.wikiname }}</h2>
-    Visit: <a href='http://{{ wiki.wikiname }}.otswiki.net'>{{ wiki.wikiname }}</a>
-    <form method="post" action="renamewiki">
-      <input type="hidden" name="wiki_id" value="{{ wiki.id }}">
-      Rename to <input name="new_wiki_name">
-      <input type="submit" value="Rename">
-    </form>
-    <form method="post" action="deletewiki">
-      <input type="hidden" name="wiki_id" value="{{ wiki.id }}">
-      <!-- TODO: replace with non inline onclick code -->
-      <input type="submit" value="Delete!" onclick='return confirm("Confirm Wiki Deletion");'>
-    </form>
-    <h3>Upload csv to populate wiki</h3>
-    <form action="uploadcsv" method="post" enctype="multipart/form-data">
-      <input type="hidden" name="wiki_id" value="{{ wiki.id }}">
-      CSV: <input type="file" name="csv">
-      <br>
-      Config: <input type="file" name="config">
-      <br>
-      <input type="submit">
-    </form>
-    </h3>
-    <br>
-  {% endfor %}
-  <hr>
-  <h1>Create Wiki</h1>
-  <form action="createwiki" method="post">
-    Name: <input type="text" name="name">
-    <input type="submit" value="Create Wiki">
-  </form>
-  <hr>
-  <h1>Create Wiki via CSV</h1>
-  <form action="uploadcsv" method="post" enctype="multipart/form-data">
-    Name: <input type="text" name="name">
-    <br>
-    CSV: <input type="file" name="csv">
-    <br>
-    Config: <input type="file" name="config">
-    <br>
-    <input type="submit">
-  </form>
+<section class="section">
+  <div class="container">
+    <h1 class="title">Wikis</h1>
+  </div>
+</section>
+<section class="section">
+  <div class="container">
+    <div class="columns">
+      {% for wiki in wikis %}
+      <div class="column">
+        <div class="tile is-ancestor">
+          <div class="tile is-vertical is-parent">
+
+            <div class="tile is-child">
+              <h2 class="title is-4">{{ wiki.wikiname }}</h2>
+              <a href='http://{{ wiki.wikiname }}.otswiki.net'>Visit {{ wiki.wikiname }}</a>
+            </div>
+
+            <div class="tile is-child">
+              <form method="post" action="renamewiki">
+                <input type="hidden" name="wiki_id" value="{{ wiki.id }}">
+                <div class="field">
+                  <label class="label">Rename Wiki</label>
+                  <div class="control">
+                    <input class="input" type="text" name="new_wiki_name" placeholder="New Name">
+                  </div>
+                </div>
+                <div class="field">
+                  <div class="control">
+                    <input class="button is-link" type="submit" value="Rename Wiki">
+                  </div>
+                </div>
+              </form>
+            </div>
+
+            <div class="tile is-child">
+              <form action="uploadcsv" method="post" enctype="multipart/form-data">
+                <div class="field">
+                  <label class="label">Populate Wiki with CSV Data</label>
+                  <input type="hidden" name="wiki_id" value="{{ wiki.id }}" />
+                  <div class="file">
+                    <label class="file-label">
+                      <input class="file-input" type="file" name="csv">
+                      <span class="file-cta">
+                        <span class="file-icon">
+                          <i class="fas fa-upload"></i>
+                        </span>
+                        <span class="file-label">Choose a CSV file…</span>
+                      </span>
+                    </label>
+                  </div>
+                </div>
+                <div class="field">
+                  <div class="file">
+                    <label class="file-label">
+                      <input class="file-input" type="file" name="config">
+                      <span class="file-cta">
+                        <span class="file-icon">
+                          <i class="fas fa-upload"></i>
+                        </span>
+                        <span class="file-label">Choose a Config file…</span>
+                      </span>
+                    </label>
+                  </div>
+                </div>
+                <div class="field">
+                  <div class="control">
+                    <input class="button is-link" type="submit" value="Populate Wiki with CSV">
+                  </div>
+                </div>
+              </form>
+            </div>
+
+            <div class="tile is-child">
+              <form method="post" action="deletewiki">
+                <input type="hidden" name="wiki_id" value="{{ wiki.id }}">
+                <div class="field">
+                  <label class="label">Delete Wiki</label>
+                  <div class="control">
+                    <!-- TODO: replace with non inline onclick code -->
+                    <input class="button is-danger" type="submit" value="Delete Wiki" onclick='return confirm("Confirm Wiki Deletion");'>
+                  </div>
+                </div>
+              </form>
+            </div>
+
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+
+      <div class="column">
+        <h2 class="title is-4">Create a Wiki</h2>
+        <form action="createwiki" method="post">
+          <div class="field">
+            <label class="label">Wiki Name</label>
+            <div class="control">
+              <input class="input" type="text" name="name" placeholder="Wiki Name">
+            </div>
+          </div>
+          <div class="field">
+            <div class="control">
+              <input class="button is-link" type="submit" value="Create Wiki">
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="column">
+        <h2 class="title is-4">Create a Wiki from CSV Data</h2>
+        <form action="uploadcsv" method="post" enctype="multipart/form-data">
+          <div class="field">
+            <label class="label">Wiki Name</label>
+            <div class="control">
+              <input class="input" type="text" name="name" placeholder="Wiki Name">
+            </div>
+          </div>
+          <div class="field">
+            <div class="file">
+              <label class="file-label">
+                <input class="file-input" type="file" name="csv">
+                <span class="file-cta">
+                  <span class="file-icon">
+                    <i class="fas fa-upload"></i>
+                  </span>
+                  <span class="file-label">
+                    Choose a CSV file…
+                  </span>
+                </span>
+              </label>
+            </div>
+          </div>
+          <div class="field">
+            <div class="file">
+              <label class="file-label">
+                <input class="file-input" type="file" name="config">
+                <span class="file-cta">
+                  <span class="file-icon">
+                    <i class="fas fa-upload"></i>
+                  </span>
+                  <span class="file-label">
+                    Choose a Config file…
+                  </span>
+                </span>
+              </label>
+            </div>
+          </div>
+          <div class="field">
+            <div class="control">
+              <input class="button is-link" type="submit" value="Create Wiki from CSV Data">
+            </div>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</section>
 {% endblock %}
