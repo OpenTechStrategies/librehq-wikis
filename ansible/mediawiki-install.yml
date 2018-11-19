@@ -22,17 +22,22 @@
     loop:
       - apache2
       - curl
+      - default-mysql-server
+      - default-mysql-client
       - git
       - php
       - php-apcu
       - php-cli
       - php-intl
       - php7.3-mbstring
+      - php-mysql
+      - php7.3-mysqli
       - php7.3-pgsql
       - php7.2-xml
       - php7.3-xml
       - postgresql
       - python-psycopg2
+      - python-mysqldb
       - unzip
 
   - name: Include variables for install script
@@ -71,33 +76,26 @@
       owner: wiki
       group: wiki
 
-  - name: Create database user
-    become: true
-    become_user: postgres
-    postgresql_user:
-      name: wikiuser
-      state: present
-      password: "{{ wikiuser_db_pass }}"
-      encrypted: yes
-
   - name: Create first database
-    become: true
-    become_user: postgres
-    postgresql_db:
+    mysql_db:
       name: wikidb1
-      owner: wikiuser
 
   - name: Create second database
-    become: true
-    become_user: postgres
-    postgresql_db:
+    mysql_db:
       name: wikidb2
-      owner: wikiuser
+
+  - name: Create database user and grant privileges
+    mysql_user:
+      name: wikiuser
+      login_password: "{{ wikiuser_db_pass }}"
+      state: present
+      priv: "wikidb1.*:ALL/wikidb2.*:ALL"
 
   - name: Enable PHP modules
     shell: phpenmod {{ item }}
     loop:
       - mbstring
+      - mysqli
       - xml
 
   - name: Get Composer
@@ -191,14 +189,14 @@
   - name: Create wiki 1
     become: true
     become_user: wiki
-    command: php mediawiki-1.31.1/maintenance/install.php --confpath=/dev/null --dbtype=postgresql --dbserver=localhost --dbuser=wikiuser --dbname=wikidb1 --lang=en --pass=mdpwiki8 "Wiki Test 1" "test"
+    command: php mediawiki-1.31.1/maintenance/install.php --confpath=/dev/null --dbtype=mysql --dbserver=localhost --dbuser=wikiuser --dbpassword="{{ wikiuser_db_pass }}" --dbname=wikidb1 --lang=en --pass=mdpwiki8 "Wiki Test 1" "test"
     args:
       chdir: /home/wiki
 
   - name: Create wiki 2
     become: true
     become_user: wiki
-    command: php mediawiki-1.31.1/maintenance/install.php --confpath=/dev/null --dbtype=postgresql --dbserver=localhost --dbuser=wikiuser --dbname=wikidb2 --lang=en --pass=mdpwiki8 "Wiki Test 2" "test"
+    command: php mediawiki-1.31.1/maintenance/install.php --confpath=/dev/null --dbtype=mysql --dbserver=localhost --dbuser=wikiuser --dbname=wikidb2 --dbpassword="{{ wikiuser_db_pass }}" --lang=en --pass=mdpwiki8 "Wiki Test 2" "test"
     args:
       chdir: /home/wiki
 
@@ -210,6 +208,9 @@
       group: www-data
       src: /home/wiki/mediawiki-1.31.1
       path: /var/www/mediawiki
+
+  - name: Enable SSL on the webserver
+    shell: a2enmod ssl
 
   - name: Send up MW config file
     copy:
