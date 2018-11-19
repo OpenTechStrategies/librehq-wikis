@@ -102,3 +102,11 @@ Our configuration for multiple wikis is currently closely based on
 branch](https://github.com/OpenTechStrategies/librehq-wikis/blob/mediawiki-updates/MEDIAWIKI_INSTALL.md)
 of this repository.  We expect these to be united on the master branch
 in the future.
+
+To use the mediawiki farm parts of this Ansible playbook, you will need
+to add the database password to `test1.yml` and `test2.yml`.
+
+    $ cp mediawikifarmdocs/test1.yml.tmpl mediawikifarmdocs/test1.yml
+    # Edit database password to match the one you entered in your vault
+
+

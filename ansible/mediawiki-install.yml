@@ -80,11 +80,18 @@
       password: "{{ wikiuser_db_pass }}"
       encrypted: yes
 
-  - name: Create database
+  - name: Create first database
     become: true
     become_user: postgres
     postgresql_db:
       name: wikidb1
+      owner: wikiuser
+
+  - name: Create second database
+    become: true
+    become_user: postgres
+    postgresql_db:
+      name: wikidb2
       owner: wikiuser
 
   - name: Enable PHP modules
@@ -180,6 +187,20 @@
       - mediawikifarmdocs/test1.yml
       - mediawikifarmdocs/test2.yml
 
+  # Initialize wikis
+  - name: Create wiki 1
+    become: true
+    become_user: wiki
+    command: php mediawiki-1.31.1/maintenance/install.php --confpath=/dev/null --dbtype=postgresql --dbserver=localhost --dbuser=wikiuser --dbname=wikidb1 --lang=en --pass=mdpwiki8 "Wiki Test 1" "test"
+    args:
+      chdir: /home/wiki
+
+  - name: Create wiki 2
+    become: true
+    become_user: wiki
+    command: php mediawiki-1.31.1/maintenance/install.php --confpath=/dev/null --dbtype=postgresql --dbserver=localhost --dbuser=wikiuser --dbname=wikidb2 --lang=en --pass=mdpwiki8 "Wiki Test 2" "test"
+    args:
+      chdir: /home/wiki
 
   # Handle Apache changes
   - name: Symlink to webserver directory
