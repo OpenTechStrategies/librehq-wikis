@@ -110,3 +110,69 @@ to add the database password to `test1.yml` and `test2.yml`.
     # Edit database password to match the one you entered in your vault
 
 
+## Local testing
+
+Locally, Ansible works well with Vagrant.
+
+    $ sudo apt-get install vagrant
+    $ sudo apt-get install virtualbox
+
+Note that the [Vagrant
+documentation](https://www.vagrantup.com/docs/installation/) suggests
+_not_ using the version of Vagrant packaged by your operating system,
+but rather using the more complete and up-to-date versions they
+[provider](https://www.vagrantup.com/downloads.html). Either way,
+downloading may take a few minutes.  If you choose to download the
+`.deb` file, you can install it with `sudo dpkg -i
+/path/to/vagrant_2.2.1_x86_64.deb`. Test your local installation with
+the following commands:
+
+    # Adds a Debian image to your VirtualBox installation
+    $ vagrant box add debian/testing64
+
+    # Since there is a committed Vagrantfile in this repo, you don't
+    # need to `vagrant init` and can instead move on to these commands:
+    
+    $ emacs Vagrantfile
+      # Add: config.vm.box = "debian/testing64"
+
+    $ vagrant up
+
+You may get a persistent error like `default: Warning: Authentication
+failure. Retrying...`.  Check that the virtual machine is being created
+correctly in VirtualBox (you can look in the GUI to see if it appears
+and is running).  The quickest and simplest way to resolve this is by
+copying [the Vagrant default key
+files](https://github.com/hashicorp/vagrant/tree/master/keys) to your
+`.ssh` directory (on your host machine, not the new virtual guest
+machine).  The Vagrantfile assumes that this default private key is
+present at `~/.ssh/vagrant-insecure`, as noted in the line
+`config.ssh.private_key_path = "~/.ssh/vagrant-insecure"`.
+
+If you then SSH to your vagrant host __as `vagrant`__ with `vagrant
+ssh`, you should be able to connect successfully.
+
+Because the Mediawiki playbook is intended to be run as root, you should
+copy the guest machine's `authorized_keys` file from the `vagrant` user
+to `root`.  This will allow Vagrant and Ansible to access the guest
+machine as root. (This is not a security best practice, but since this
+virtual machine should only be used for local testing, it is an
+acceptable risk.)
+
+    $ vagrant ssh
+    vagrant@testing$ sudo su
+    root@testing$ cd ~
+    root@testing$ mkdir .ssh
+    root@testing$ cp /home/vagrant/.ssh/authorized_keys .ssh
+
+Then disconnect from the guest machine.  Open the Vagrantfile and
+uncomment the line designating root as the username.
+
+To run the Ansible file and set up Mediawiki on your local virtual
+machine:
+
+    $ vagrant provision
+
+If you need to test a clean build, you can clear the Vagrant virtual
+machine with `vagrant destroy`.  From there, just start again at
+`vagrant up` above.
