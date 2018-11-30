@@ -1,7 +1,8 @@
 from io import StringIO
 from flask import (
-    Blueprint, redirect, render_template, request, session, url_for
+    Blueprint, redirect, request, session, url_for
 )
+from librehq import render_template_in_core
 
 import csv2wiki, subprocess
 
@@ -32,7 +33,7 @@ def create_wiki():
 @signin_required
 def dashboard():
     wikis = Wiki.query.filter_by(username=session.get("account_username")).all()
-    return render_template("wikis/dashboard.html", wikis=wikis)
+    return render_template_in_core("wikis.html", wikis=wikis)
 
 @bp.route('createwiki', methods=(["POST"]))
 @signin_required
