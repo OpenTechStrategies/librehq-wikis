@@ -1,6 +1,6 @@
 from io import StringIO
 from flask import (
-    Blueprint, redirect, request, session, url_for
+    Blueprint, redirect, request, session, url_for, jsonify
 )
 from librehq import render_template_in_core
 
@@ -32,8 +32,18 @@ def create_wiki():
 @bp.route('')
 @signin_required
 def dashboard():
+    return render_template_in_core("wikis.html")
+
+@bp.route("/wikisdata")
+@signin_required
+def wiki_data():
     wikis = Wiki.query.filter_by(username=session.get("account_username")).all()
-    return render_template_in_core("wikis.html", wikis=wikis)
+    wikisdata = map(lambda w: {
+        "wikiname": w.wikiname,
+        "id": w.id,
+        "url": "http://" + w.wikiname + ".otswiki.net"
+    }, wikis)
+    return jsonify(list(wikisdata))
 
 @bp.route('createwiki', methods=(["POST"]))
 @signin_required
