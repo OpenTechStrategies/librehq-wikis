@@ -14,3 +14,9 @@ build/
 *.egg-info/
 
 config.py
+
+# Ansible: secrets file, etc.
+ansible/mediawiki_vars/vault.yml
+ansible/mwiki-default.conf
+ansible/mediawikifarmdocs/test1.yml
+ansible/mediawikifarmdocs/test2.yml

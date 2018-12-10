@@ -1,0 +1,229 @@
+# Notes before starting:
+#
+# Set up /etc/ansible/hosts to include any hosts for which you want to
+# run this playbook, within a `[mediawiki]` group.  Test that you can
+# ping these hosts with ansible and the desired user.  If they are not
+# already in known_hosts, you may get an error.  Either add them to
+# known_hosts or edit the configuration to ignore that check.  See
+# https://docs.ansible.com/ansible/latest/user_guide/intro_getting_started.html
+# for general help with Ansible.
+
+---
+- hosts: default ansible_host=127.0.0.1 ansible_port=2222 ansible_user='vagrant' ansible_ssh_private_key_file='~/.ssh/vagrant-insecure'
+  remote_user: root
+  tasks:
+
+  - name: install prerequisites
+    # See https://www.mediawiki.org/wiki/Manual:Installation_requirements
+    apt:
+      name: "{{ item }}"
+      update_cache: yes
+      state: present
+    loop:
+      - apache2
+      - curl
+      - default-mysql-server
+      - default-mysql-client
+      - git
+      - php
+      - php-apcu
+      - php-cli
+      - php-intl
+      - php7.2-mbstring
+      - php7.3-mbstring
+      - php-mysql
+      - php7.3-mysqli
+      - php7.3-pgsql
+      - php7.2-xml
+      - php7.3-xml
+      - postgresql
+      - python-psycopg2
+      - python-mysqldb
+      - unzip
+
+  - name: Include variables for install script
+    include_vars:
+      dir: mediawiki_vars
+      ignore_files: [vault.yml.tmpl]
+      extensions: [yml]
+
+  - name: Create "wiki" user
+    user:
+      name: wiki
+      shell: /bin/bash
+      create_home: yes
+      state: present
+
+  - name: Download MediaWiki
+    get_url:
+      url: https://releases.wikimedia.org/mediawiki/1.31/mediawiki-1.31.1.tar.gz
+      dest: /home/wiki/mediawiki-1.31.1.tar.gz
+      owner: wiki
+      group: wiki
+      checksum: sha256:ce5ad8a07c8ef6832448629d8bb56a19b2f73632ddde29b5af2c08192943a48f
+
+  - name: Remove Mediawiki directory (if it exists)
+    file:
+      path: /home/wiki/mediawiki-1.31.1
+      state: absent
+
+  - name: Extract MediaWiki tarball
+    become: true
+    become_user: wiki
+    unarchive:
+      src: /home/wiki/mediawiki-1.31.1.tar.gz
+      dest: /home/wiki
+      remote_src: yes
+      owner: wiki
+      group: wiki
+
+  - name: Create first database
+    mysql_db:
+      name: wikidb1
+
+  - name: Create second database
+    mysql_db:
+      name: wikidb2
+
+  - name: Create database user and grant privileges
+    mysql_user:
+      name: wikiuser
+      login_password: "{{ wikiuser_db_pass }}"
+      state: present
+      priv: "wikidb1.*:ALL/wikidb2.*:ALL"
+
+  - name: Enable PHP modules
+    shell: phpenmod {{ item }}
+    loop:
+      - mbstring
+      - mysqli
+      - xml
+
+  - name: Get Composer
+    become: true
+    become_user: wiki
+    get_url:
+      url: https://getcomposer.org/installer
+      dest: /home/wiki/composer-setup.php
+      checksum: "sha384:93b54496392c062774670ac18b134c3b3a95e5a5e5c8f1a9f115f203b75bf9a129d5daa8ba6a13e2cc8a1da0806388a8"
+
+  - name: Make wiki bin directory
+    become: true
+    become_user: wiki
+    file:
+      path: /home/wiki/bin 
+      state: directory
+
+  - name: Install Composer locally
+    become: true
+    become_user: wiki
+    shell: php /home/wiki/composer-setup.php --install-dir=/home/wiki/bin --filename=composer
+
+  - name: Remove Composer setup script
+    become: true
+    become_user: wiki
+    file:
+      path: /home/wiki/composer-setup.php
+      state: absent
+
+  - name: Install Composer globally
+    shell: mv /home/wiki/bin/composer /usr/local/bin/composer      
+
+  - name: Install MW with Composer
+    become: true
+    become_user: wiki
+    command: composer install --no-dev
+    args:
+      chdir: /home/wiki/mediawiki-1.31.1
+
+  # Add MediawikiFarm configuration
+
+  # This is an attempt to keep this script idempotent
+  - name: Remove MWFarm if it exists
+    file:
+      path: /home/wiki/mediawikifarm
+      state: absent
+
+  - name: Download MediawikiFarm
+    become: true
+    become_user: wiki
+    git:
+      dest: /home/wiki/mediawikifarm
+      repo: https://gerrit.wikimedia.org/r/mediawiki/extensions/MediaWikiFarm
+
+  - name: Install MediawikiFarm
+    become: true
+    become_user: wiki
+    command: composer install --no-dev
+    args:
+      chdir: /home/wiki/mediawikifarm
+      
+
+  - name: Edit ConfigDir
+    become: true
+    become_user: wiki
+    copy:
+      src: mediawikifarmdocs/MediaWikiFarmDirectories.php
+      dest: /home/wiki/mediawikifarm/config/MediaWikiFarmDirectories.php
+      force: yes
+
+  # Send up configuration yaml files
+  
+  # TBD: How can we pass the db password from the vault to these config
+  # files?
+  
+  - name: Add farm configuration files
+    become: true
+    become_user: wiki
+    copy:
+      src: "{{ item }}"
+      dest: /home/wiki/mediawiki-1.31.1/
+      owner: wiki
+      group: wiki
+    with_items:
+      - mediawikifarmdocs/farms.yml  
+      - mediawikifarmdocs/versions.yml
+      - mediawikifarmdocs/test1.yml
+      - mediawikifarmdocs/test2.yml
+
+  # Initialize wikis
+  - name: Create wiki 1
+    become: true
+    become_user: wiki
+    command: php mediawiki-1.31.1/maintenance/install.php --confpath=/dev/null --dbtype=mysql --dbserver=localhost --dbuser=wikiuser --dbpassword="{{ wikiuser_db_pass }}" --dbname=wikidb1 --lang=en --pass=mdpwiki8 "Wiki Test 1" "test"
+    args:
+      chdir: /home/wiki
+
+  - name: Create wiki 2
+    become: true
+    become_user: wiki
+    command: php mediawiki-1.31.1/maintenance/install.php --confpath=/dev/null --dbtype=mysql --dbserver=localhost --dbuser=wikiuser --dbname=wikidb2 --dbpassword="{{ wikiuser_db_pass }}" --lang=en --pass=mdpwiki8 "Wiki Test 2" "test"
+    args:
+      chdir: /home/wiki
+
+  # Handle Apache changes
+  - name: Symlink to webserver directory
+    file:
+      state: link
+      owner: www-data
+      group: www-data
+      src: /home/wiki/mediawiki-1.31.1
+      path: /var/www/mediawiki
+
+  - name: Enable SSL on the webserver
+    shell: a2enmod ssl
+
+  - name: Send up MW config file
+    copy:
+      src: mwiki-default.conf
+      dest: /etc/apache2/sites-available
+      backup: yes
+
+  - name: Enable MW site
+    shell: a2ensite mwiki-default.conf
+
+  - name: Restart Apache
+    service:
+      name: apache2
+      state: restarted
+
