@@ -193,3 +193,26 @@ machine:
 If you need to test a clean build, you can clear the Vagrant virtual
 machine with `vagrant destroy`.  From there, just start again at
 `vagrant up` above.
+
+### Checking MediaWiki in a browser
+
+To check the MediaWiki installation in a browser, edit the
+Vagrantfile and uncomment this line to enable port forwarding,
+(to forward a port on your host OS to a port on the guest VM):
+
+    config.vm.network "forwarded_port", guest: 80, host: 8080, host_ip: "127.0.0.1"
+
+You may also need to edit the Apache config file `000-default.conf`:
+
+    $ vagrant ssh
+    $ cd ../etc/apache2/sites_available/
+    $ nano 000-default.conf
+
+Then change the `DocumentRoot` to `/var/www/mediawiki/`, and restart
+the VM:
+
+    $ vagrant halt
+    $ vagrant up
+
+Now you should be able to see MediaWiki in your browser at
+`localhost:8080`.
