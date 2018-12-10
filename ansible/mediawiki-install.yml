@@ -29,6 +29,7 @@
       - php-apcu
       - php-cli
       - php-intl
+      - php7.2-mbstring
       - php7.3-mbstring
       - php-mysql
       - php7.3-mysqli
