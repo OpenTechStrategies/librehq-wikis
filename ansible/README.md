@@ -1,13 +1,20 @@
 # README
 
+## Install Ansible
+
 To run this playbook, you should have Ansible installed locally.  On a
 Debian system, you can do this with:
 
     $ sudo apt-get install ansible
 
-This will create a directory `/etc/ansible` and within that a file
-`/etc/ansible/hosts`.  To run this playbook, you should add the
-following lines to the `hosts` file:
+## Hosts file
+
+If you are doing local testing using Vagrant and VirtualBox, you can
+skip ahead to the section about encrypting secrets.
+
+Otherwise, you'll need to edit the `hosts` file. After installing
+Ansible, it should be here: `/etc/ansible/hosts`. Add the following
+lines to that file:
 
 ```
 [mediawiki]
@@ -25,6 +32,8 @@ example.com | SUCCESS => {
     "ping": "pong"
 }
 ```
+
+## Running without secrets
 
 To run the simplest version of the playbook, with no secrets, do the
 following:
@@ -54,8 +63,8 @@ example.com : ok=2    changed=1    unreachable=0    failed=0
 
 ## Encrypt secrets
 
-However, you'll most likely need to encrypt some secrets.  For example,
-in this playbook we encrypt the database password.
+Most likely, you'll need to encrypt some secrets.  For example, in this
+playbook we encrypt the database password.
 
 A best practice is to create an Ansible Vault file with all sensitive
 variables and use `ansible-vault encrypt` to encrypt the file.  You can
@@ -98,10 +107,8 @@ to fill in the Server Name.
 ## Mediawiki Farm (i.e., multiple wikis)
 
 Our configuration for multiple wikis is currently closely based on
-[documentation in another
-branch](https://github.com/OpenTechStrategies/librehq-wikis/blob/mediawiki-updates/MEDIAWIKI_INSTALL.md)
-of this repository.  We expect these to be united on the master branch
-in the future.
+the documentation in
+[MEDIAWIKI_INSTALL.md](https://github.com/OpenTechStrategies/librehq-wikis/blob/mvp-dev/MEDIAWIKI_INSTALL.md).
 
 To use the mediawiki farm parts of this Ansible playbook, you will need
 to add the database password to `test1.yml` and `test2.yml`.
@@ -121,20 +128,28 @@ Note that the [Vagrant
 documentation](https://www.vagrantup.com/docs/installation/) suggests
 _not_ using the version of Vagrant packaged by your operating system,
 but rather using the more complete and up-to-date versions they
-[provider](https://www.vagrantup.com/downloads.html). Either way,
-downloading may take a few minutes.  If you choose to download the
-`.deb` file, you can install it with `sudo dpkg -i
+[provide](https://www.vagrantup.com/downloads.html).
+
+(2018/12/06: the version from the Vagrant website worked (2.2.2),
+but the one provided by Ubuntu 18.04 did not (2.0.2).)
+
+Either way, downloading may take a few minutes.  If you choose to
+download the `.deb` file, you can install it with `sudo dpkg -i
 /path/to/vagrant_2.2.1_x86_64.deb`. Test your local installation with
 the following commands:
 
     # Adds a Debian image to your VirtualBox installation
     $ vagrant box add debian/testing64
 
+    # Move to `vagrant` directory
+    $ cd vagrant
+
     # Since there is a committed Vagrantfile in this repo, you don't
     # need to `vagrant init` and can instead move on to these commands:
     
+    # Optional: edit the `config.vm.box` setting in the Vagrantfile,
+    # it should already be set: config.vm.box = "debian/testing64"
     $ emacs Vagrantfile
-      # Add: config.vm.box = "debian/testing64"
 
     $ vagrant up
 
@@ -147,7 +162,9 @@ files](https://github.com/hashicorp/vagrant/tree/master/keys) to your
 `.ssh` directory (on your host machine, not the new virtual guest
 machine).  The Vagrantfile assumes that this default private key is
 present at `~/.ssh/vagrant-insecure`, as noted in the line
-`config.ssh.private_key_path = "~/.ssh/vagrant-insecure"`.
+`config.ssh.private_key_path = "~/.ssh/vagrant-insecure"`. Make sure
+the default key files end in a newline (see this [bug
+report](https://github.com/hashicorp/vagrant/issues/10333)).
 
 If you then SSH to your vagrant host __as `vagrant`__ with `vagrant
 ssh`, you should be able to connect successfully.
@@ -165,8 +182,8 @@ acceptable risk.)
     root@testing$ mkdir .ssh
     root@testing$ cp /home/vagrant/.ssh/authorized_keys .ssh
 
-Then disconnect from the guest machine.  Open the Vagrantfile and
-uncomment the line designating root as the username.
+Then disconnect from the guest machine (e.g. type `cmd-d`).  Open the
+Vagrantfile and uncomment the line designating root as the username.
 
 To run the Ansible file and set up Mediawiki on your local virtual
 machine:
